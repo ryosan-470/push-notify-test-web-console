@@ -37,17 +37,17 @@ func postPushNotificationHandler(w http.ResponseWriter, r *http.Request) {
 	to := r.FormValue("to")
 	title := r.FormValue("title")
 	body := r.FormValue("body")
-	sendPushNotificationViaHTTP(to, title, body)
+	alertType, message := sendPushNotificationViaHTTP(to, title, body)
 	re.HTML(w, http.StatusOK, "push_notification_form",
 		PushNotificationResponse{
 			Context:   r.Context(),
 			Alert:     true,
-			AlertType: "alert-success",
-			Message:   fmt.Sprintf("Success to send notification to %s", to),
+			AlertType: alertType,
+			Message:   message,
 		})
 }
 
-func sendPushNotificationViaHTTP(to, title, body string) {
+func sendPushNotificationViaHTTP(to, title, body string) (alertType, message string) {
 	var payload = []byte(fmt.Sprintf(`{"to": "%s", "notification": {"title": "%s", "body": "%s"}}`, to, title, body))
 	req, err := http.NewRequest("POST", FCM_ENDPOINT, bytes.NewBuffer(payload))
 	req.Header.Set("Content-Type", "application/json")
@@ -70,10 +70,10 @@ func sendPushNotificationViaHTTP(to, title, body string) {
 	json.Unmarshal(responseBody, &fcmHttpResponse)
 
 	if fcmHttpResponse.Failure != 0 {
-		log.Println("failure to send notification")
-		panic(err)
+		return "alert-danger", fmt.Sprintf("Failure to send notification to %s", to)
 	}
 	log.Printf("response Body: %s", string(responseBody))
+	return "alert-success", fmt.Sprintf("Success to send notification to %s", to)
 }
 
 func main() {
