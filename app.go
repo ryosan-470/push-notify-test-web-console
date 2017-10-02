@@ -1,6 +1,11 @@
 package main
 
 import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
@@ -19,11 +24,56 @@ func topHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func getPushNotificationHandler(w http.ResponseWriter, r *http.Request) {
-	return
+	re.HTML(w, http.StatusOK, "push_notification_form", struct {
+		Context context.Context
+		Alert   bool
+	}{
+		r.Context(),
+		false,
+	})
 }
 
 func postPushNotificationHandler(w http.ResponseWriter, r *http.Request) {
-	return
+	to := r.FormValue("to")
+	title := r.FormValue("title")
+	body := r.FormValue("body")
+	sendPushNotificationViaHTTP(to, title, body)
+	re.HTML(w, http.StatusOK, "push_notification_form",
+		PushNotificationResponse{
+			Context:   r.Context(),
+			Alert:     true,
+			AlertType: "alert-success",
+			Message:   fmt.Sprintf("Success to send notification to %s", to),
+		})
+}
+
+func sendPushNotificationViaHTTP(to, title, body string) {
+	var payload = []byte(fmt.Sprintf(`{"to": "%s", "notification": {"title": "%s", "body": "%s"}}`, to, title, body))
+	req, err := http.NewRequest("POST", FCM_ENDPOINT, bytes.NewBuffer(payload))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", fmt.Sprintf("key=%s", SERVER_KEY))
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		panic(err)
+	}
+	defer resp.Body.Close()
+
+	log.Printf("response Status: %d", resp.Status)
+	log.Printf("response Headers: %s", resp.Header)
+	responseBody, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		panic(err)
+	}
+	var fcmHttpResponse FcmHttpResponse
+	json.Unmarshal(responseBody, &fcmHttpResponse)
+
+	if fcmHttpResponse.Failure != 0 {
+		log.Println("failure to send notification")
+		panic(err)
+	}
+	log.Printf("response Body: %s", string(responseBody))
 }
 
 func main() {

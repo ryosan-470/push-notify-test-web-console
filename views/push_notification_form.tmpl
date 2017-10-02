@@ -1,0 +1,22 @@
+{{ template "base_top" .}}
+
+<h1>Send Notification</h1>
+{{ if eq .Alert true }}<div class="alert {{ .AlertType }}" role="alert">{{ .Message }}</div>{{ end }}
+<form method="POST">
+  <div class="form-group">
+    <label>to</label>
+    <input type="text" name="to" class="form-control" required>
+  </div>
+  <div class="form-group">
+    <label>title</label>
+    <input type="text" name="title" class="form-control" required>
+  </div>
+  <div class="form-group">
+    <label>body</label>
+    <input type="text" name="body" class="form-control" required>
+  </div>
+
+  <button type="submit">プッシュ通知を送信する</button>
+</form>
+
+{{ template "base_bottom" .}}
