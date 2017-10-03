@@ -102,7 +102,7 @@ func insertResultToDB(to, title, body string, response FcmHttpResponse) error {
 		return fmt.Errorf("INSERTING ERROR: %v", err)
 	}
 
-	_, err = stmt.Exec(to, title, body, isSuccess, fmt.Sprintf("%s", time.Now().Format("2006/01/02/ 15:04:05 MST")))
+	_, err = stmt.Exec(to, title, body, isSuccess, fmt.Sprintf("%s", time.Now().Format("2006/01/02 15:04:05 MST")))
 	if err != nil {
 		return fmt.Errorf("INSERTING ERROR: %v", err)
 	}
