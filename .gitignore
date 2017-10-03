@@ -1,2 +1,3 @@
 push-notify-test-web-console
 db.sqlite3
+secret.go
