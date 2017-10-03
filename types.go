@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"time"
 )
 
 type PushNotificationResponse struct {
@@ -14,10 +13,11 @@ type PushNotificationResponse struct {
 
 type PushNotificationList struct {
 	Id        int
+	To        string
 	Title     string
 	Body      string
-	date      time.Time
 	IsSuccess bool
+	Date      string
 }
 
 type FcmHttpResponse struct {

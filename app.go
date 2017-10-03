@@ -30,7 +30,28 @@ const (
 )
 
 func topHandler(w http.ResponseWriter, r *http.Request) {
-	re.HTML(w, http.StatusOK, "index", "")
+	count := 10
+	rows, err := db.Query(fmt.Sprintf(`SELECT * FROM notification_list ORDER BY id DESC LIMIT %d`, count))
+	if err != nil && err != sql.ErrNoRows {
+		log.Println(err)
+	}
+
+	lists := make([]*PushNotificationList, 0)
+	for rows.Next() {
+		l := PushNotificationList{}
+		err := rows.Scan(&l.Id, &l.To, &l.Title, &l.Body, &l.IsSuccess, &l.Date)
+		if err != nil {
+			log.Println(err)
+		}
+		lists = append(lists, &l)
+	}
+	rows.Close()
+
+	re.HTML(w, http.StatusOK, "index", struct {
+		PushNotificationLists []*PushNotificationList
+	}{
+		lists,
+	})
 }
 
 func getPushNotificationHandler(w http.ResponseWriter, r *http.Request) {

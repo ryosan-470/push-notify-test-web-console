@@ -1,3 +1,29 @@
 {{ template "base_top" .}}
 <h1>Top Page</h1>
+
+<p>最新の送信リストです</p>
+<table class="table">
+  <thead>
+    <th>id</th>
+    <th>to</th>
+    <th>title</th>
+    <th>body</th>
+    <th>date</th>
+    <th>status</th>
+  </thead>
+  <tbody>
+    {{range .PushNotificationLists}}
+    <tr>
+      <td>{{.Id}}</td>
+      <td>{{.To}}</td>
+      <td>{{.Title}}</td>
+      <td>{{.Body}}</td>
+      <td>{{.Date}}</td>
+      <td>
+        {{if eq .IsSuccess true}}<span class="label label-success">Success</div>{{else}}<span class="label label-danger">Failure</div>{{end}}
+      </td>
+    </tr>
+    {{end}}
+  </tbody>
+</table>
 {{ template "base_bottom" .}}
