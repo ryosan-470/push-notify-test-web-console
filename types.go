@@ -1,12 +1,23 @@
 package main
 
-import "context"
+import (
+	"context"
+	"time"
+)
 
 type PushNotificationResponse struct {
 	Context   context.Context
 	Alert     bool
 	AlertType string
 	Message   string
+}
+
+type PushNotificationList struct {
+	Id        int
+	Title     string
+	Body      string
+	date      time.Time
+	IsSuccess bool
 }
 
 type FcmHttpResponse struct {
